@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResuMetric AI - Professional AI Resume Analyzer & ATS Auditor</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js & Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen selection:bg-indigo-500 selection:text-white transition-colors duration-200">
+
+  <!-- Navigation Bar -->
+  <nav class="sticky top-0 z-40 glass-nav border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo & System Status -->
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-extrabold text-base tracking-tight text-white">ResuMetric <span class="text-indigo-400">AI</span></span>
+              <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Python 3.11</span>
+            </div>
+            <p class="text-[10px] text-slate-400">ATS Intelligence & Interview Ready Engine</p>
+          </div>
+        </div>
+
+        <div id="system-status" class="hidden md:flex items-center text-xs font-medium text-slate-300 px-3 py-1 rounded-full bg-slate-900 border border-slate-800">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-indicator mr-2"></span> AI Engine: Ready
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center gap-2.5">
+        <button id="open-settings" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Engine Settings & API Key">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </button>
+
+        <button id="theme-toggle" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Toggle Theme">
+          <svg id="theme-toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+        </button>
+
+        <a href="#upload-section" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+          </svg>
+          Analyze Resume
+        </a>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- Hero & Demo Quickload Banner -->
+  <header class="relative overflow-hidden pt-10 pb-8 border-b border-slate-800/80 bg-gradient-to-b from-indigo-950/20 via-slate-950 to-slate-950">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+        <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+        Built for Technical Interviews & Recruiter ATS Auditing
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+        Elevate Your Resume with <br class="hidden sm:inline">
+        <span class="bg-gradient-to-r from-indigo-400 via-violet-300 to-purple-400 bg-clip-text text-transparent">
+          AI-Powered ATS Intelligence
+        </span>
+      </h1>
+
+      <p class="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto">
+        Deep parsing for PDF and DOCX, keyword gap analysis against job descriptions, Google XYZ bullet point re-writing, and tailored interview question generation.
+      </p>
+
+      <!-- Instant Sample Loader Bar (Crucial for live interview demonstrations) -->
+      <div class="pt-4 flex flex-wrap items-center justify-center gap-2">
+        <span class="text-xs font-semibold text-slate-400 mr-1">⚡ Test 1-Click Profiles:</span>
+        <button class="sample-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-indigo-300 border border-slate-800 hover:border-indigo-500/50 transition flex items-center gap-1.5" data-role="fullstack">
+          💻 Full-Stack Engineer
+        </button>
+        <button class="sample-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-purple-300 border border-slate-800 hover:border-purple-500/50 transition flex items-center gap-1.5" data-role="ai_ml">
+          🤖 AI / ML Engineer
+        </button>
+        <button class="sample-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-slate-800 hover:border-emerald-500/50 transition flex items-center gap-1.5" data-role="product_manager">
+          📊 Product Manager
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Analysis Workspace -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+    
+    <!-- Upload and Input Form Section -->
+    <section id="upload-section" class="glass-panel rounded-2xl p-6 sm:p-8 shadow-xl bg-slate-900/60 border border-slate-800">
+      <form id="analyze-form" class="space-y-6">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          <!-- Column 1: Resume Upload / Text Area -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                Resume Document (PDF, DOCX, TXT)
+              </label>
+              <span class="text-[11px] text-slate-400">Drag file or paste below</span>
+            </div>
+
+            <!-- Drag & Drop Box -->
+            <div id="dropzone" class="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-5 text-center cursor-pointer transition bg-slate-950/40 relative">
+              <input type="file" id="file-input" accept=".pdf,.docx,.doc,.txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+              
+              <div id="drop-prompt" class="space-y-1.5 pointer-events-none">
+                <div class="w-10 h-10 mx-auto rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                </div>
+                <p class="text-xs font-semibold text-slate-200">Drop PDF or DOCX file here, or <span class="text-indigo-400 underline">browse</span></p>
+                <p class="text-[10px] text-slate-500">Supports standard ATS formats up to 16MB</p>
+              </div>
+
+              <!-- Selected File Box -->
+              <div id="file-info-box" class="hidden flex items-center justify-between p-2 rounded-lg bg-slate-800 text-left">
+                <div class="flex items-center gap-2">
+                  <span class="text-indigo-400 text-lg">📄</span>
+                  <div>
+                    <p id="file-selected-name" class="text-xs font-bold text-white truncate max-w-[200px]">file.pdf</p>
+                    <p class="text-[10px] text-emerald-400 font-medium">Ready for AI parsing</p>
+                  </div>
+                </div>
+                <button type="button" onclick="clearSelectedFile(event)" class="text-xs text-rose-400 hover:text-rose-300 p-1 font-bold">✕ Remove</button>
+              </div>
+            </div>
+
+            <!-- Resume Raw Text Area -->
+            <div>
+              <textarea id="resume-text" rows="5" placeholder="Or paste plain resume text here..." class="w-full text-xs font-mono bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-slate-300 focus:outline-none focus:border-indigo-500 transition"></textarea>
+            </div>
+          </div>
+
+          <!-- Column 2: Target Job Description (Optional for JD Matcher) -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                Target Job Description (Optional)
+              </label>
+              <span class="text-[11px] text-indigo-400 font-semibold">Unlocks Skill Gap Match %</span>
+            </div>
+
+            <textarea id="job-description" rows="10" placeholder="Paste the target job description or requirements here to analyze your keyword match rate, missing technical skills, and recruiter alignment..." class="w-full text-xs font-mono bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-slate-300 focus:outline-none focus:border-indigo-500 transition"></textarea>
+          </div>
+
+        </div>
+
+        <!-- Submit & Clear Controls -->
+        <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-800/80">
+          <button type="button" id="btn-reset" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition">
+            Reset Fields
+          </button>
+
+          <button type="submit" id="btn-submit" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-sm shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 transition transform active:scale-95">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Execute AI Analysis
+          </button>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- Results Section (Dynamic) -->
+    <section id="results-section" class="hidden space-y-8">
+      
+      <!-- Print Header (Visible only in print) -->
+      <div class="print-header hidden">
+        <h1 class="text-2xl font-bold">ResuMetric AI - Executive Resume Audit Report</h1>
+        <p class="text-xs text-slate-500">Generated for Candidate Review • ATS Algorithm v2.4</p>
+      </div>
+
+      <!-- Executive Overview Card -->
+      <div class="glass-panel rounded-2xl p-6 sm:p-8 bg-slate-900/60 border border-slate-800 shadow-xl relative overflow-hidden">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          <!-- Column A: Animated Radial Score Gauge (5 Cols) -->
+          <div class="lg:col-span-5 flex flex-col items-center justify-center text-center border-b lg:border-b-0 lg:border-r border-slate-800 pb-6 lg:pb-0 lg:pr-6">
+            
+            <div class="relative w-44 h-44 flex items-center justify-center">
+              <svg class="w-full h-full -rotate-90 transform" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" fill="none" stroke-width="9" class="score-circle-bg"/>
+                <circle id="ats-circle-progress" cx="60" cy="60" r="52" fill="none" stroke-width="9" stroke-linecap="round" class="score-circle-progress" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+              </svg>
+
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="ats-score-text" class="text-5xl font-black text-white tracking-tighter">0</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-0.5">ATS Score / 100</span>
+              </div>
+            </div>
+
+            <div class="mt-4 space-y-1">
+              <div class="inline-flex items-center gap-2">
+                <span id="score-grade-badge" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">Grade A</span>
+                <span id="score-tier-badge" class="text-xs font-bold text-emerald-400">Interview Ready</span>
+              </div>
+              <p class="text-[11px] text-slate-400">Calculated based on 6 core hiring dimensions</p>
+            </div>
+
+          </div>
+
+          <!-- Column B: Candidate Identity & Quick Stats (7 Cols) -->
+          <div class="lg:col-span-7 space-y-5">
+            
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div class="flex flex-wrap items-center gap-3">
+                  <h2 id="candidate-name" class="text-2xl sm:text-3xl font-extrabold text-white">Alexander Rivera</h2>
+                  <span id="detected-skills-chip" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">🎯 0 Skills Detected</span>
+                </div>
+                <p id="candidate-sub" class="text-xs sm:text-sm text-slate-400 mt-0.5">alex.rivera@devmail.com • 634 words</p>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex items-center gap-2">
+                <button id="btn-print-report" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5" title="Export or Print as PDF">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                  Export PDF
+                </button>
+              </div>
+            </div>
+
+            <!-- Contact Hygiene Chips -->
+            <div id="contact-chips-container" class="flex flex-wrap gap-2 pt-1">
+              <!-- Rendered via JS -->
+            </div>
+
+            <!-- Key Metric Dimension Bars -->
+            <div id="breakdown-bars-container" class="space-y-3 pt-2">
+              <!-- Rendered via JS -->
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="border-b border-slate-800 tab-buttons">
+        <nav class="flex space-x-6 overflow-x-auto">
+          <button class="tab-btn py-3 px-1 border-b-2 font-bold text-xs sm:text-sm whitespace-nowrap transition border-indigo-500 text-indigo-400" data-tab="weaknesses">
+            ⚠️ Weak Points (Kamzoriyan)
+          </button>
+          <button class="tab-btn py-3 px-1 border-b-2 font-bold text-xs sm:text-sm whitespace-nowrap transition border-transparent text-slate-400 hover:text-slate-200" data-tab="missing-skills">
+            🧩 Missing Skills & Gaps
+          </button>
+          <button class="tab-btn py-3 px-1 border-b-2 font-bold text-xs sm:text-sm whitespace-nowrap transition border-transparent text-slate-400 hover:text-slate-200" data-tab="overview">
+            📊 Overview & Insights
+          </button>
+          <button class="tab-btn py-3 px-1 border-b-2 font-bold text-xs sm:text-sm whitespace-nowrap transition border-transparent text-slate-400 hover:text-slate-200" data-tab="job-match">
+            🎯 Job Match
+          </button>
+          <button class="tab-btn py-3 px-1 border-b-2 font-bold text-xs sm:text-sm whitespace-nowrap transition border-transparent text-slate-400 hover:text-slate-200" data-tab="bullet-optimizer">
+            ✍️ AI Bullet Rewriter (Google XYZ)
+          </button>
+          <button class="tab-btn py-3 px-1 border-b-2 font-bold text-xs sm:text-sm whitespace-nowrap transition border-transparent text-slate-400 hover:text-slate-200" data-tab="interview-prep">
+            🎙️ Tailored Interview Questions
+          </button>
+          <button class="tab-btn py-3 px-1 border-b-2 font-bold text-xs sm:text-sm whitespace-nowrap transition border-transparent text-slate-400 hover:text-slate-200" data-tab="resume-inspector">
+            📄 Resume Text & Inspector
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tab Content: Weak Points & Vulnerabilities (Kamzoriyan) -->
+      <div id="tab-weaknesses" class="tab-pane space-y-6">
+        <div class="glass-panel rounded-2xl p-6 sm:p-8 bg-slate-900/60 border border-slate-800 space-y-5">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div>
+              <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <span>⚠️ Weak Points & Critical Vulnerabilities Audit (Kamzoriyan)</span>
+              </h3>
+              <p class="text-xs text-slate-400">Granular AI diagnostic identifying weak verbs, lack of numbers, contact gaps, and formatting risks with actionable fixes.</p>
+            </div>
+            <span id="weak-points-counter" class="text-xs px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold">0 Weaknesses</span>
+          </div>
+
+          <div id="weak-points-container" class="space-y-4">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Missing Skills & Tech Gaps -->
+      <div id="tab-missing-skills" class="tab-pane hidden space-y-6">
+        <div class="glass-panel rounded-2xl p-6 sm:p-8 bg-slate-900/60 border border-slate-800 space-y-6">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div>
+              <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <span>🧩 Missing Skills & Tech Gap Analysis</span>
+              </h3>
+              <p class="text-xs text-slate-400">Technical skills absent from your target Job Description and standard 2026 industry requirements.</p>
+            </div>
+            <span id="missing-skills-counter" class="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold">0 Missing</span>
+          </div>
+
+          <!-- Section 1: Missing from Target Job Description -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400">1. Missing from Target Job Description</h4>
+            <div id="tab-jd-missing-container" class="space-y-2">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <div class="border-t border-slate-800 pt-4 space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400">2. Missing Industry Benchmark Skills (2026 Standards)</h4>
+            <p class="text-xs text-slate-400">Based on your candidate profile, recruiters at top tech firms expect these core skills:</p>
+            <div id="tab-domain-missing-container" class="space-y-3">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 1: Overview & Insights -->
+      <div id="tab-overview" class="tab-pane hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Radar Chart (5 Cols) -->
+          <div class="lg:col-span-5 glass-panel rounded-2xl p-6 bg-slate-900/60 border border-slate-800 flex flex-col">
+            <h3 class="text-sm font-bold text-white mb-2">Multi-Dimensional ATS Radar</h3>
+            <div class="relative w-full h-64 sm:h-72 my-auto">
+              <canvas id="atsRadarChart"></canvas>
+            </div>
+            <p class="text-[11px] text-slate-400 text-center mt-2">Visual representation of scoring across all 6 core categories.</p>
+          </div>
+
+          <!-- Strengths & Critical Improvements (7 Cols) -->
+          <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Strengths -->
+            <div class="glass-panel rounded-2xl p-5 bg-slate-900/60 border border-slate-800 space-y-3">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Key Resume Strengths
+              </h3>
+              <ul id="strengths-container" class="space-y-2">
+                <!-- Rendered by JS -->
+              </ul>
+            </div>
+
+            <!-- Critical Warnings & Improvements -->
+            <div class="glass-panel rounded-2xl p-5 bg-slate-900/60 border border-slate-800 space-y-3">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                High-Impact Recommendations
+              </h3>
+              <ul id="improvements-container" class="space-y-2">
+                <!-- Rendered by JS -->
+              </ul>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Detected Technical Skills Cloud -->
+        <div class="glass-panel rounded-2xl p-6 bg-slate-900/60 border border-slate-800 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white">Parsed Skills & Technical Domain Cloud</h3>
+            <span class="text-xs text-indigo-400 font-semibold">Categorized via NLP Taxonomy</span>
+          </div>
+          <div id="skills-cloud-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 2: Job Match & Skill Gap -->
+      <div id="tab-job-match" class="tab-pane hidden space-y-6">
+        <div class="glass-panel rounded-2xl p-6 sm:p-8 bg-slate-900/60 border border-slate-800 space-y-6">
+          
+          <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
+            <div>
+              <h3 class="text-lg font-bold text-white">Target Job Description Alignment</h3>
+              <p class="text-xs text-slate-400">Calculates keyword intersection and flags critical missing tech requirements.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-slate-400">Match Rate:</span>
+              <span id="jd-match-percentage" class="text-3xl font-black text-indigo-400">0%</span>
+            </div>
+          </div>
+
+          <!-- Matched Keywords -->
+          <div class="space-y-2">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400">✓ Matched Keywords & Technologies</h4>
+            <div id="jd-matched-keywords" class="flex flex-wrap gap-1.5">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Missing Keywords -->
+          <div class="space-y-2">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400">+ Missing High-Priority Keywords (Skill Gap)</h4>
+            <div id="jd-missing-keywords" class="flex flex-wrap gap-1.5">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Strategic Advice -->
+          <div class="space-y-2 pt-2 border-t border-slate-800">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300">Recruiter Strategy Recommendations</h4>
+            <div id="jd-recommendations" class="space-y-1.5">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Tab Content 3: AI Bullet Point Rewriter -->
+      <div id="tab-bullet-optimizer" class="tab-pane hidden space-y-6">
+        <div class="glass-panel rounded-2xl p-6 sm:p-8 bg-slate-900/60 border border-slate-800 space-y-6">
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-2">
+              Google XYZ Formula: "Accomplished [X] as measured by [Y], by doing [Z]"
+            </div>
+            <h3 class="text-lg font-bold text-white">AI Bullet Point & Impact Optimizer</h3>
+            <p class="text-xs text-slate-400">Select any bullet from your resume or write your own to transform it into high-converting metrics.</p>
+          </div>
+
+          <!-- Bullet Selector & Custom Input -->
+          <div class="space-y-3">
+            <select id="bullet-select" class="w-full text-xs bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="">-- Choose a bullet point from your resume --</option>
+            </select>
+
+            <textarea id="custom-bullet-input" rows="2" placeholder="Or enter a bullet point to improve..." class="w-full text-xs font-mono bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 focus:outline-none focus:border-indigo-500"></textarea>
+
+            <button type="button" id="btn-run-optimizer" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition">
+              <span>✨ Optimize with AI Formula</span>
+            </button>
+          </div>
+
+          <!-- Optimizer Results Area -->
+          <div id="optimizer-results" class="pt-4 border-t border-slate-800">
+            <div class="text-center p-6 text-slate-500 text-xs">
+              Click "Optimize with AI Formula" above to generate Google XYZ and STAR variations.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Tab Content 4: Interview Questions -->
+      <div id="tab-interview-prep" class="tab-pane hidden space-y-6">
+        <div class="glass-panel rounded-2xl p-6 sm:p-8 bg-slate-900/60 border border-slate-800 space-y-6">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+            <div>
+              <h3 class="text-lg font-bold text-white">Tailored Interview Questions & STAR Blueprints</h3>
+              <p class="text-xs text-slate-400">Real questions tech interviewers will ask you based on your exact resume projects and stack.</p>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-bold">5 Questions</span>
+          </div>
+
+          <!-- Questions Container -->
+          <div id="interview-questions-container" class="space-y-4">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 5: Resume Inspector -->
+      <div id="tab-resume-inspector" class="tab-pane hidden space-y-6">
+        <div class="glass-panel rounded-2xl p-6 bg-slate-900/60 border border-slate-800 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white">Parsed Plain Text Representation</h3>
+            <button onclick="copyToClipboard(document.getElementById('raw-text-display').textContent, this)" class="text-xs text-slate-400 hover:text-white px-2.5 py-1 rounded bg-slate-800 flex items-center gap-1">
+              Copy Text
+            </button>
+          </div>
+          <pre id="raw-text-display" class="w-full text-xs font-mono bg-slate-950 p-4 rounded-xl border border-slate-800 text-slate-300 max-h-96 overflow-y-auto whitespace-pre-wrap"></pre>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div class="glass-panel rounded-2xl max-w-md w-full p-6 bg-slate-900 border border-slate-800 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <span>⚙️ Engine Settings</span>
+        </h3>
+        <button id="close-settings" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div class="space-y-1.5">
+          <label class="font-bold text-slate-300">Processing Mode</label>
+          <select id="api-provider-select" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-200">
+            <option value="local">High-Accuracy Local Engine (Offline / Instant)</option>
+            <option value="gemini">Google Gemini 1.5 Flash (Requires API Key)</option>
+          </select>
+          <p class="text-[10px] text-slate-400">The local engine runs 100% in Python with zero external latency or API costs.</p>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="font-bold text-slate-300">Optional Google Gemini API Key</label>
+          <input type="password" id="api-key-input" placeholder="AIzaSy..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-200 font-mono">
+          <p class="text-[10px] text-slate-400">Optional: If provided, live generative rewrites will use Gemini LLM.</p>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+        <button id="save-settings" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition">
+          Save Preferences
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-center space-y-3 max-w-sm w-full shadow-2xl">
+      <div class="w-12 h-12 mx-auto rounded-full border-4 border-indigo-500/20 border-t-indigo-500 animate-spin"></div>
+      <h4 class="text-sm font-bold text-white">AI Engine Running</h4>
+      <p id="loading-text" class="text-xs text-slate-400">Extracting text, computing ATS score, and evaluating metrics...</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="mt-20 border-t border-slate-800/80 py-8 text-center text-xs text-slate-500 space-y-1">
+    <p>ResuMetric AI • Enterprise Resume Intelligence & ATS Auditor</p>
+    <p class="text-[11px] text-slate-600">Built 100% with Python, Flask, NLP Algorithms & Google XYZ Methodology</p>
+  </footer>
+
+  <!-- Main JavaScript Logic -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
